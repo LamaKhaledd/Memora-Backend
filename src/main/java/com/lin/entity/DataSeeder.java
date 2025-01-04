@@ -244,6 +244,7 @@ public class DataSeeder {
         flashcard1.setLastResponse(false);
         flashcard1.setSubject(subject1);
         flashcard1.setTopic(topic1);
+        flashcard1.setVisibility(FlashcardVisibility.PUBLIC);
         flashcard1.setImageUrl("https://picsum.photos/201");
         flashcardRepository.save(flashcard1);
 
@@ -254,6 +255,7 @@ public class DataSeeder {
         flashcard2.setLastResponse(true);
         flashcard2.setSubject(subject1);
         flashcard2.setTopic(topic1);
+        flashcard2.setVisibility(FlashcardVisibility.PUBLIC);
         flashcard2.setImageUrl("https://picsum.photos/201");
 
         flashcardRepository.save(flashcard2);
@@ -265,6 +267,7 @@ public class DataSeeder {
         flashcard3.setLastResponse(false);
         flashcard3.setSubject(subject1);
         flashcard3.setTopic(topic1);
+        flashcard3.setVisibility(FlashcardVisibility.PRIVATE);
         flashcard3.setImageUrl("https://picsum.photos/201");
         flashcardRepository.save(flashcard3);
 
@@ -275,6 +278,7 @@ public class DataSeeder {
         flashcard4.setLastResponse(true);
         flashcard4.setSubject(subject1);
         flashcard4.setTopic(topic1);
+        flashcard4.setVisibility(FlashcardVisibility.PRIVATE);
         flashcard4.setImageUrl("https://picsum.photos/201");
         flashcardRepository.save(flashcard4);
 

@@ -8,8 +8,16 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Document(collection = "flashcards")
-@JsonPropertyOrder({"id", "subjectId", "topicId", "question", "answer", "difficulty", "lastResponse", "imageUrl"})
+@JsonPropertyOrder({"id", "subjectId", "topicId", "question", "answer", "difficulty", "lastResponse", "imageUrl", "visibility", "nextReviewDate", "interval", "easinessFactor"})
 public class Flashcard {
 
     @Id
@@ -19,7 +27,7 @@ public class Flashcard {
     private Integer difficulty; 
     private Boolean lastResponse;
     private String imageUrl;
-
+    private FlashcardVisibility visibility; 
 
     private LocalDateTime nextReviewDate = LocalDateTime.now(); // Default to current time
     private Integer interval = 1; // Default to 1 day
