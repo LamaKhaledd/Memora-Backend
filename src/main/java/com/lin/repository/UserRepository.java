@@ -14,6 +14,7 @@ public interface UserRepository extends MongoRepository<User, String> {
 
         Optional<User> findByUserId(String userId);
 
+
     List<User> findByUserIdIn(List<String> userIds);
     @NotNull
     Optional<User> findById(@NotNull String userId);  // Find user by userId

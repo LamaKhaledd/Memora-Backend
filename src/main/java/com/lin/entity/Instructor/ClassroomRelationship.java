@@ -16,6 +16,5 @@ public class ClassroomRelationship {
     @Id
     private String id;  // Relationship ID (optional, can auto-generate)
     private String classroomId;  // Classroom ID
-    private String instructorId;  // Instructor ID
     private List<String> studentIds;  // List of Student IDs
 }

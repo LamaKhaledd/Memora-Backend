@@ -1,14 +1,11 @@
 package com.lin.service.Pomodoro;
 
-import com.lin.entity.Pomodoro.Timer;
-import com.lin.repository.Pomodoro.TimerRepository;
+import com.lin.entity.Pomodoro.*;
+import com.lin.repository.Pomodoro.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -17,174 +14,156 @@ public class TimerService {
     @Autowired
     private TimerRepository timerRepository;
 
+    @Autowired
+    private UserPomodoroSettingsRepository userPomodoroSettingsRepository;
 
-    public TimerService(TimerRepository timerRepository) {
-        this.timerRepository = timerRepository;
-    }
+    @Autowired
+    private GlobalPomodoroSettingsRepository globalPomodoroSettingsRepository;
+
+    @Autowired
+    private PomodoroSessionsRepository pomodoroSessionsRepository;
 
 
-    // Method to start a new Pomodoro timer
-    public void startPomodoro(String userId, String taskId, long pomodoroDuration, long breakDuration) {
-        // Ensure no active timer already exists for the user
-        Optional<Timer> activeTimer = timerRepository.findActiveTimerByUserId(userId);
-        if (activeTimer.isPresent()) {
-            throw new IllegalStateException("A Pomodoro session is already active for this user.");
+    // Pause the Pomodoro timer for the user
+    public void pauseTimer(String userId) {
+        Timer timer = timerRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Timer not found for userId: " + userId));
+
+        if (timer.isActive()) {
+            // Calculate the remaining time and stop the timer
+            long elapsedTime = Instant.now().getEpochSecond() - timer.getLastSwitchTime().getEpochSecond();
+            timer.setRemainingTime(Math.max(0, timer.getRemainingTime() - elapsedTime));
         }
 
-        Timer newTimer = new Timer(userId, taskId, pomodoroDuration, breakDuration);
-        timerRepository.save(newTimer);
+        // Mark the timer as inactive (paused)
+        timer.setActive(false);
+        timer.setLastSwitchTime(Instant.now()); // Update the last switch time
+        timerRepository.save(timer);
+
     }
 
-    // Method to stop the active Pomodoro timer
-    public void stopPomodoro(String userId) {
-        Optional<Timer> activeTimer = timerRepository.findActiveTimerByUserId(userId);
-        if (activeTimer.isPresent()) {
-            Timer timer = activeTimer.get();
-            long elapsedTime = calculateElapsedTime(timer.getLastSwitchTime(), Instant.now());
+    // Resume the Pomodoro timer for the user
+    public Timer resumeTimer(String userId) {
+        Timer timer = timerRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Timer not found for userId: " + userId));
 
-            if (!timer.isBreakTime()) {
-                timer.addTaskTime(timer.getTaskId(), elapsedTime);
-            }
-
-            timer.setActive(false); // Mark timer as inactive
-            timerRepository.save(timer);
-        } else {
-            throw new IllegalStateException("No active Pomodoro session found for this user.");
-        }
-    }
-
-    // Method to pause the active Pomodoro timer
-    public void pausePomodoro(String userId) {
-        Optional<Timer> activeTimer = timerRepository.findActiveTimerByUserId(userId);
-        if (activeTimer.isPresent()) {
-            Timer timer = activeTimer.get();
-            long elapsedTime = calculateElapsedTime(timer.getLastSwitchTime(), Instant.now());
-
-            if (!timer.isBreakTime()) {
-                timer.addTaskTime(timer.getTaskId(), elapsedTime);
-            }
-
-            timer.setActive(false);
-            timer.setRemainingTime(timer.getRemainingTime() - elapsedTime);
-            timerRepository.save(timer);
-        } else {
-            throw new IllegalStateException("No active Pomodoro session found for this user.");
-        }
-    }
-
-    // Method to resume the paused Pomodoro timer
-    public void resumePomodoro(String userId) {
-        Optional<Timer> activeTimer = timerRepository.findActiveTimerByUserId(userId);
-        if (activeTimer.isEmpty()) {
-            throw new IllegalStateException("No paused Pomodoro session found for this user.");
-        }
-
-        Timer timer = activeTimer.get();
+        // Resume the timer
         timer.setActive(true);
-        timer.setLastSwitchTime(Instant.now());
+        timerRepository.save(timer);
+
+        return timer;
+    }
+
+
+
+    // Start the break timer
+    public void startBreak(String userId, int remainingTime) {
+
+        // Fetch or create the timer for the user
+        Timer timer = timerRepository.findByUserId(userId)
+                .orElseGet(() -> new Timer(userId));
+
+        // Set remaining time and activate timer
+        timer.setRemainingTime(remainingTime);
+        timer.setActive(true);
+        timer.setBreakTimerFinished(false);
+
+        // Save updated timer
+        timerRepository.save(timer);
+
+    }
+    public void startPomodoro(String userId) {
+        // Fetch user-specific settings
+        Optional<UserPomodoroSettings> userSettingsOpt = userPomodoroSettingsRepository.findById(userId);
+
+        if (userSettingsOpt.isPresent()) {
+            // If user settings exist, use them
+            UserPomodoroSettings userSettings = userSettingsOpt.get();
+
+            Timer timer = timerRepository.findByUserId(userId)
+                    .orElseGet(() -> new Timer(userId));
+
+            timer.setRemainingTime(userSettings.getPomodoroLength() * 60);  // Convert minutes to seconds
+            timer.setActive(true);
+            timer.setPomodoroTimerFinished(false);
+            timerRepository.save(timer);
+
+        } else {
+            // If no user settings, fall back to global settings
+            GlobalPomodoroSettings globalSettings = globalPomodoroSettingsRepository.findById("global")
+                    .orElseThrow(() -> new RuntimeException("Global settings not found"));
+
+            Timer timer = timerRepository.findByUserId(userId)
+                    .orElseGet(() -> new Timer(userId));
+
+            timer.setRemainingTime(globalSettings.getPomodoroLength() * 60L);  // Convert minutes to seconds
+            timer.setActive(true);
+            timer.setPomodoroTimerFinished(false);
+            timerRepository.save(timer);
+        }
+    }
+
+
+
+    public void updateTimer(Timer timer) {
+        // Update the timer object in the database
         timerRepository.save(timer);
     }
 
-    // Method to switch between tasks
-    public void switchTask(String userId, String currentTaskId, String newTaskId) {
-        Optional<Timer> activeTimer = timerRepository.findActiveTimerByUserId(userId);
-        if (activeTimer.isPresent()) {
-            Timer timer = activeTimer.get();
-            if (timer.isBreakTime()) {
-                throw new IllegalStateException("Cannot switch tasks during break time.");
-            }
 
-            long elapsedTime = calculateElapsedTime(timer.getLastSwitchTime(), Instant.now());
-            timer.addTaskTime(currentTaskId, elapsedTime);
 
-            timer.setTaskId(newTaskId);
-            timer.setLastSwitchTime(Instant.now());
-            timer.setLastKnownState("Switched to Task: " + newTaskId); // Update state after switching tasks
-            timerRepository.save(timer);
-        } else {
-            throw new IllegalStateException("No active Pomodoro session found for this user.");
+
+
+
+
+
+    // Fetch Timer for a user
+    public Timer getTimer(String userId) {
+        return timerRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Timer not found for userId: " + userId));
+    }
+    private long getPomodoroDurationForUser(String userId) {
+        UserPomodoroSettings userSettings = userPomodoroSettingsRepository.findByUserId(userId);
+        if (userSettings != null) {
+            return userSettings.getPomodoroLength();
         }
+        GlobalPomodoroSettings globalSettings = globalPomodoroSettingsRepository.findById("global").orElse(null);
+        return globalSettings != null ? globalSettings.getPomodoroLength() : 25 * 60;
     }
 
-    // Method to skip the break and continue the Pomodoro session
-    public void skipBreak(String userId) {
-        Optional<Timer> activeTimer = timerRepository.findActiveTimerByUserId(userId);
-        if (activeTimer.isPresent()) {
-            Timer timer = activeTimer.get();
-            if (!timer.isBreakTime()) {
-                throw new IllegalStateException("Cannot skip break time outside of a break.");
-            }
-
-            timer.setBreakTime(false);
-            timer.setRemainingTime(timer.getRemainingTime());
-            timer.setLastSwitchTime(Instant.now());
-            timerRepository.save(timer);
-        } else {
-            throw new IllegalStateException("No active Pomodoro session found for this user.");
+    private long getBreakDurationForUser(String userId) {
+        UserPomodoroSettings userSettings = userPomodoroSettingsRepository.findByUserId(userId);
+        if (userSettings != null) {
+            return userSettings.getShortBreakLength() != null ? userSettings.getShortBreakLength() * 60L : 5 * 60L;
         }
+        GlobalPomodoroSettings globalSettings = globalPomodoroSettingsRepository.findById("global").orElse(null);
+        return globalSettings != null ? globalSettings.getShortBreakLength() * 60L : 5 * 60L;
     }
 
-    // Method to end the break
-    public void endBreak(String userId) {
-        Optional<Timer> activeTimer = timerRepository.findActiveTimerByUserId(userId);
-        if (activeTimer.isPresent()) {
-            Timer timer = activeTimer.get();
-            if (!timer.isBreakTime()) {
-                throw new IllegalStateException("Cannot end break time outside of a break.");
-            }
 
-            timer.setBreakTime(false);
-            timer.setRemainingTime(timer.getRemainingTime());
-            timer.setLastSwitchTime(Instant.now());
-            timerRepository.save(timer);
-        } else {
-            throw new IllegalStateException("No active Pomodoro session found for this user.");
-        }
-    }
 
-    private long calculateElapsedTime(Instant start, Instant end) {
-        return Duration.between(start, end).getSeconds();
-    }
+    public Timer updateTimerState(String userId) {
+        Timer timer = timerRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Timer not found"));
 
-    // Periodic task to auto-save timer states
-    @Scheduled(fixedRate = 5000) // Every 5 seconds
-    public void autoSaveTimers() {
-        List<Timer> activeTimers = timerRepository.findByIsActive(true);
-        for (Timer timer : activeTimers) {
-            if (timerHasChanged(timer)) {
-                timer.setLastUpdatedTime(Instant.now());
-                timerRepository.save(timer);
+        long elapsedTime = Instant.now().getEpochSecond() - timer.getLastSwitchTime().getEpochSecond();
+        long newRemainingTime = Math.max(0, timer.getRemainingTime() - elapsedTime);
+
+        timer.setRemainingTime(newRemainingTime);
+        timer.setLastSwitchTime(Instant.now());
+
+        if (newRemainingTime == 0) {
+            timer.setActive(false);
+            if (timer.isBreakTimerFinished()) {
+                timer.setPomodoroTimerFinished(true);
+            } else {
+                timer.setBreakTimerFinished(true);
             }
         }
+
+        return timerRepository.save(timer);
     }
 
-    // Helper method to check if the timer has changed
-    private boolean timerHasChanged(Timer timer) {
-        Optional<Timer> dbTimerOpt = timerRepository.findById(timer.getId());
-        if (!dbTimerOpt.isPresent()) {
-            return true; // Timer is new, should save
-        }
-        Timer dbTimer = dbTimerOpt.get();
-        return dbTimer.getRemainingTime() != timer.getRemainingTime() ||
-                dbTimer.isActive() != timer.isActive() ||
-                !dbTimer.getTaskId().equals(timer.getTaskId());
-    }
 
-    // Reset all timers on restart
-    public void resetTimersOnRestart() {
-        List<Timer> allTimers = timerRepository.findAll();
-        for (Timer timer : allTimers) {
-            if (timer.isActive()) {
-                timer.setActive(false);
-                timer.setLastKnownState("Stopped");
-                timerRepository.save(timer);
-            }
-        }
-    }
-    public Timer getTimerState(String userId) {
-        // Fetch the user's active timer. Assuming a user can have only one active timer at a time.
-        Timer timer = timerRepository.findByUserIdAndActive(userId, true);
-        return timer;
-    }
 
 }

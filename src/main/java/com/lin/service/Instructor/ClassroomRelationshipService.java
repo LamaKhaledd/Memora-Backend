@@ -2,6 +2,7 @@ package com.lin.service.Instructor;
 
 import com.lin.entity.Instructor.Classroom;
 import com.lin.entity.Instructor.ClassroomRelationship;
+import com.lin.entity.User;
 import com.lin.repository.Instructor.ClassroomRelationshipRepository;
 import com.lin.repository.Instructor.ClassroomRepository;
 import com.lin.repository.UserRepository;
@@ -25,11 +26,20 @@ public class ClassroomRelationshipService {
     private UserRepository userRepository;
 
 
+    public List<User> getStudentsByClassroomId(String classroomId) {
+        // Step 1: Get all relationships for the classroom
+        List<ClassroomRelationship> relationships = classroomRelationshipRepository.findByClassroomId(classroomId);
 
-    // Get relationships by instructorId
-    public List<ClassroomRelationship> getClassroomRelationshipsByInstructorId(String instructorId) {
-        return classroomRelationshipRepository.findByInstructorId(instructorId);
+        // Step 2: Extract the student IDs (flattening the list of lists)
+        List<String> studentIds = relationships.stream()
+                .flatMap(relationship -> relationship.getStudentIds().stream()) // Flatten List<List<String>> to List<String>
+                .collect(Collectors.toList());
+
+        // Step 3: Fetch students by their IDs
+        return userRepository.findByUserIdIn(studentIds);
     }
+
+
 
     // Get relationships by classroomId
     public List<ClassroomRelationship> getClassroomRelationshipsByClassroomId(String classroomId) {
@@ -78,4 +88,33 @@ public class ClassroomRelationshipService {
             throw new IllegalArgumentException("Student is already added to this classroom.");
         }
     }
+
+
+    public void removeStudentFromClassroom(String classroomId, String studentId) {
+        // Find the classroom by its ID
+        Classroom classroom = classroomRepository.findById(classroomId)
+                .orElseThrow(() -> new RuntimeException("Classroom not found"));
+
+        // Find the relationship for this classroom and student using the custom repository method
+        ClassroomRelationship classroomRelationship = classroomRelationshipRepository
+                .findByClassroomIdAndStudentIdsContaining(classroomId, studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found in this classroom"));
+
+        // Remove the studentId from the studentIds list
+        classroomRelationship.getStudentIds().remove(studentId);
+
+        // If the list is empty, delete the relationship; otherwise, save the updated relationship
+        if (classroomRelationship.getStudentIds().isEmpty()) {
+            classroomRelationshipRepository.delete(classroomRelationship);
+        } else {
+            classroomRelationshipRepository.save(classroomRelationship);
+        }
+
+        // Optionally update the classroom's current students count
+        classroom.setCurrentStudents(classroom.getCurrentStudents() - 1);
+        classroomRepository.save(classroom);
+    }
+
+
+
 }

@@ -2,8 +2,10 @@ package com.lin.service;
 
 import java.util.List;
 
+import com.lin.entity.Instructor.Classroom;
 import com.lin.entity.Instructor.ClassroomRelationship;
 import com.lin.service.Instructor.ClassroomRelationshipService;
+import com.lin.service.Instructor.ClassroomService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,10 +23,8 @@ public class UserService {
 
     @Autowired
     private ClassroomRelationshipService classroomRelationshipService;
-
-
-
-
+    @Autowired
+    private ClassroomService classroomService;
 
 
     public List<User> getAllUsers() {
@@ -98,11 +98,11 @@ public class UserService {
     //Users & Classrooms
 
 
-
+/*
     // Fetch all students for an instructor based on instructorId
     public List<User> getStudentsByInstructorId(String instructorId) {
         // Fetch all classroom relationships associated with the instructor
-        List<ClassroomRelationship> relationships = classroomRelationshipService.getClassroomRelationshipsByInstructorId(instructorId);
+        List<Classroom> relationships = classroomService.getClassroomsByInstructorId(instructorId);
 
         // Collect all unique student IDs from the relationships
         Set<String> studentIds = relationships.stream()
@@ -112,7 +112,7 @@ public class UserService {
         // Fetch student details based on student IDs
         return userRepository.findByUserIdIn(List.copyOf(studentIds));
     }
-
+*/
     public List<User> getStudentsByClassroomId(String classroomId) {
         // Fetch classroom relationships by classroomId
         List<ClassroomRelationship> relationships = classroomRelationshipService.getClassroomRelationshipsByClassroomId(classroomId);
@@ -134,6 +134,9 @@ public class UserService {
 
 
 
+    public List<User> findUsersByIds(List<String> userIds) {
+        return userRepository.findByUserIdIn(userIds);
+    }
 
 
 

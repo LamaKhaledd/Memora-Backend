@@ -9,6 +9,8 @@ import com.lin.service.UserService;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -98,12 +100,12 @@ public class UserController {
 
 
 //////////////////////
-
+/*
     // Get all students of an instructor based on instructorId
     @GetMapping("/students/instructor/{instructorId}")
     public List<User> getStudentsByInstructorId(@PathVariable String instructorId) {
         return userService.getStudentsByInstructorId(instructorId);
-    }
+    }*/
 
 
     // Get all students for a given classroomId
@@ -111,4 +113,19 @@ public class UserController {
     public List<User> getStudentsByClassroomId(@PathVariable String classroomId) {
         return userService.getStudentsByClassroomId(classroomId);
     }
+
+
+    @PostMapping("/findByIds")
+    public ResponseEntity<List<User>> getUsersByIds(@RequestBody List<String> userIds) {
+        System.out.println("Received user IDs: " + userIds);  // Log userIds for debugging
+        try {
+            List<User> users = userService.findUsersByIds(userIds);
+            return ResponseEntity.ok(users);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);  // Return a 500 error if something goes wrong
+        }
+    }
+
+
 }

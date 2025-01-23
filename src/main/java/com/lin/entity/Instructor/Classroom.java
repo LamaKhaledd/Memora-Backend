@@ -21,7 +21,4 @@ public class Classroom {
     private int maxStudents; // Maximum number of students allowed (e.g., 20)
     private int currentStudents; // Current number of students enrolled in the classroom
     private boolean isOngoing; // Represents whether the class is ongoing
-
-
-
 }

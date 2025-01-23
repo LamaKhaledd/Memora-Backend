@@ -290,67 +290,82 @@ public class DataSeeder {
         );
 
 
-        Task task1 = new Task(
-                "Complete Pomodoro App" // name
-        );
-        task1.setId("task1"); // _id
-        task1.setUserId("user123"); // User ID
-        task1.setProject("Work"); // project
-        task1.setDueDate(LocalDate.of(2025, 1, 10)); // due date
-        task1.setNotes("Focus on core functionality."); // notes
-        task1.setPriority(TaskPriority.HIGH); // priority
-        task1.setClocksRequired(3); // clocks required
-        task1.setSubtasks(Arrays.asList("Implement Timer", "Connect to Backend")); // subtasks
-        task1.setFlagColor("#FF5733"); // flag color
 
-        Task task2 = new Task(
-                "Write Unit Tests" // name
-        );
-        task2.setId("task2"); // _id
-        task2.setUserId("user124"); // User ID
-        task2.setProject("Development"); // project
-        task2.setDueDate(LocalDate.of(2025, 1, 12)); // due date
-        task2.setNotes("Cover all edge cases."); // notes
-        task2.setPriority(TaskPriority.MEDIUM); // priority
-        task2.setClocksRequired(2); // clocks required
-        task2.setTags(Arrays.asList("testing", "backend")); // tags
 
-        Task task3 = new Task(
-                "Finalize UI/UX Design" // name
-        );
-        task3.setId("task3"); // _id
-        task3.setUserId("user123"); // User ID
-        task3.setProject("Design"); // project
-        task3.setDueDate(LocalDate.of(2025, 1, 15)); // due date
-        task3.setNotes("Ensure responsive layout."); // notes
-        task3.setPriority(TaskPriority.LOW); // priority
-        task3.setClocksRequired(1); // clocks required
-        task3.setSubtasks(Arrays.asList("Update color scheme", "Optimize icons")); // subtasks
 
-        Task task4 = new Task(
-                "Deploy Application to Server" // name
-        );
-        task4.setId("task4"); // _id
-        task4.setUserId("user125"); // User ID
-        task4.setProject("Deployment"); // project
-        task4.setDueDate(LocalDate.of(2025, 1, 20)); // due date
-        task4.setNotes("Test before deployment."); // notes
-        task4.setPriority(TaskPriority.HIGH); // priority
-        task4.setCompleted(true); // completed status
-        task4.setClocksRequired(3); // clocks required
 
-        Task task5 = new Task(
-                "Research Task Management Trends" // name
-        );
-        task5.setId("task5"); // _id
-        task5.setUserId("user126"); // User ID
-        task5.setProject("Research"); // project
-        task5.setDueDate(LocalDate.of(2025, 1, 30)); // due date
-        task5.setNotes("Read recent articles on productivity."); // notes
-        task5.setPriority(TaskPriority.LOW); // priority
-        task5.setClocksRequired(2); // clocks required
-        task5.setTags(Arrays.asList("research", "productivity")); // tags
 
+
+
+        Task task = new Task();
+        task.setName("Test Task");
+        task.setUserId("user2");
+        task.setProject("Test Project");
+        task.setFlagColor("#FF0000"); // Color.RED -> Hex code for red
+        task.setNumberOfRequiredPomodoros(1); // Number of Pomodoros required
+        task.setCompletedPomodoros(1); // Number of completed Pomodoro cycles
+        task.setPriority(TaskPriority.MEDIUM);
+        task.setCreationDate(LocalDate.now()); // Automatically sets current date
+
+        Task task1 = new Task();
+        task1.setName("Test user2");
+        task1.setUserId("user2"); // User ID
+        task1.setProject("Work"); // Project
+        task1.setDueDate(LocalDate.of(2025, 1, 10)); // Due date
+        task1.setNotes("Focus on core functionality."); // Notes
+        task1.setPriority(TaskPriority.HIGH); // Priority
+        task1.setNumberOfRequiredPomodoros(3); // Clocks required
+        task1.setFlagColor("#FF0000"); // Color.RED -> Hex code for red
+        task1.setCreationDate(LocalDate.now()); // Automatically sets current date
+
+        Task task2 = new Task();
+        task2.setName("Test user2");
+        task2.setUserId("user2"); // User ID
+        task2.setProject("Development"); // Project
+        task2.setDueDate(LocalDate.of(2025, 1, 12)); // Due date
+        task2.setNotes("Cover all edge cases."); // Notes
+        task2.setPriority(TaskPriority.MEDIUM); // Priority
+        task2.setNumberOfRequiredPomodoros(2); // Clocks required
+        task2.setFlagColor("#FF0000"); // Color.RED -> Hex code for red
+        task2.setCreationDate(LocalDate.now()); // Automatically sets current date
+
+        Task task3 = new Task();
+        task3.setName("Test user3");
+        task3.setUserId("user3"); // User ID
+        task3.setProject("Design"); // Project
+        task3.setDueDate(LocalDate.of(2025, 1, 15)); // Due date
+        task3.setNotes("Ensure responsive layout."); // Notes
+        task3.setPriority(TaskPriority.LOW); // Priority
+        task3.setNumberOfRequiredPomodoros(1); // Clocks required
+        task3.setFlagColor("#FF0000"); // Color.RED -> Hex code for red
+        task3.setCreationDate(LocalDate.now()); // Automatically sets current date
+
+        Task task4 = new Task();
+        task4.setName("Test instructor");
+        task4.setUserId("123"); // User ID
+        task4.setProject("Deployment"); // Project
+        task4.setDueDate(LocalDate.of(2025, 1, 20)); // Due date
+        task4.setNotes("Test before deployment."); // Notes
+        task4.setPriority(TaskPriority.HIGH); // Priority
+        task4.setCompleted(true); // Completed status
+        task4.setNumberOfRequiredPomodoros(3); // Clocks required
+        task4.setFlagColor("#FF0000"); // Color.RED -> Hex code for red
+        task4.setCreationDate(LocalDate.now()); // Automatically sets current date
+
+        Task task5 = new Task();
+        task5.setName("Test instructor");
+        task5.setUserId("123"); // User ID
+        task5.setProject("Research"); // Project
+        task5.setDueDate(LocalDate.of(2025, 1, 30)); // Due date
+        task5.setNotes("Read recent articles on productivity."); // Notes
+        task5.setPriority(TaskPriority.LOW); // Priority
+        task5.setNumberOfRequiredPomodoros(2); // Clocks required
+        task5.setFlagColor("#FF0000"); // Color.RED -> Hex code for red
+        task5.setCreationDate(LocalDate.now()); // Automatically sets current date
+
+
+/*
+        mongoTemplate.save(task);
 
         mongoTemplate.save(task1);
         mongoTemplate.save(task2);
@@ -358,25 +373,25 @@ public class DataSeeder {
         mongoTemplate.save(task4);
         mongoTemplate.save(task5);
 
-
+*/
         ClassroomRelationship classroomRelationship1 = new ClassroomRelationship(
                 UUID.randomUUID().toString(),
                 classroom1.getClassroomId(),
-                instructor1.getUserId(),
+                //instructor1.getUserId(),
                 Arrays.asList(user2.getUserId(), user3.getUserId()
                 ));
 
         ClassroomRelationship classroomRelationship2 = new ClassroomRelationship(
                 UUID.randomUUID().toString(),
                 classroom2.getClassroomId(),
-                instructor1.getUserId(),
+               // instructor1.getUserId(),
                 Arrays.asList(user1.getUserId(), user3.getUserId()
                 ));
 
         ClassroomRelationship classroomRelationship3 = new ClassroomRelationship(
                 UUID.randomUUID().toString(),
                 classroom3.getClassroomId(),
-                instructor1.getUserId(),
+               // instructor1.getUserId(),
                 Arrays.asList(user1.getUserId(),user2.getUserId(), user3.getUserId()
                 ));
 
@@ -387,6 +402,13 @@ public class DataSeeder {
                 Arrays.asList(user2.getUserId(), user3.getUserId())
         );
 
+        mongoTemplate.save(classroom1);
+        mongoTemplate.save(classroom2);
+        mongoTemplate.save(classroom3);
+        mongoTemplate.save(classroomRelationship1);
+        mongoTemplate.save(classroomRelationship2);
+        mongoTemplate.save(classroomRelationship3);
+
 
         /*
         mongoTemplate.save(user1);
@@ -394,20 +416,16 @@ public class DataSeeder {
         mongoTemplate.save(user3);
         mongoTemplate.save(user4);
 
+        mongoTemplate.save(relationship1);
+
 
         mongoTemplate.save(instructor1);
         mongoTemplate.save(instructor2);
 
 
 
-        mongoTemplate.save(classroom1);
-        mongoTemplate.save(classroom2);
-        mongoTemplate.save(classroom3);
 
-        mongoTemplate.save(relationship1);
-        mongoTemplate.save(classroomRelationship1);
-        mongoTemplate.save(classroomRelationship2);
-        mongoTemplate.save(classroomRelationship3);
+
 
 
         mongoTemplate.save(meeting2);

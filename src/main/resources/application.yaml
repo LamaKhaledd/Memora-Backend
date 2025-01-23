@@ -1,11 +1,11 @@
 server:
-  port: 8081
+  port: 8080
 
 spring:
   data:
     mongodb:
-      uri: mongodb://localhost:27017/Memora  
-      database: Memora 
+      uri: mongodb://localhost:27017/MemoraDB
+      database: MemoraDB
       
   servlet:
     multipart:
@@ -38,4 +38,4 @@ upload:
 
 # 图片网络访问路径
 img:
-  imgURL: http://xxx:8081/images/
+  imgURL: http://xxx:8080/images/
