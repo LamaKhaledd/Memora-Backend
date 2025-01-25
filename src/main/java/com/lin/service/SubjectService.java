@@ -59,20 +59,47 @@ public class SubjectService {
         return subjects;
     }
 
+    
+
+    public List<Subject> getSubjectsByUserId(String userId) {
+        List<Subject> subjects = subjectRepository.findByUserId(userId); 
+        for (Subject subject : subjects) {
+            List<Topic> topics = topicRepository.findBySubjectAndUserId(subject, userId);
+            for (Topic topic : topics) {
+                System.out.println(topic);
+                List<Flashcard> flashcards = flashcardRepository.findByTopic(topic);
+                topic.setFlashcards(flashcards);
+            }
+            subject.setTopics(topics); // Set filtered topics to the subject
+        }
+    
+        return subjects;
+    }
+    
+    
+
     public List<Subject> getAllSubjectsWithTopicsAndFlashcards() {
         List<Subject> subjects = subjectRepository.findAll();
         logger.info("Fetched all subjects: " + subjects.size() + " subjects found.");
-
+    
+        // Filter subjects to include only those with public privacy
+        subjects = subjects.stream()
+                .filter(subject -> "public".equalsIgnoreCase(subject.getPrivacy()))
+                .toList();
+    
+        logger.info("Filtered subjects with public privacy: " + subjects.size() + " subjects found.");
+    
         for (Subject subject : subjects) {
             List<Topic> topics = topicRepository.findBySubject(subject);
             for (Topic topic : topics) {
                 List<Flashcard> flashcards = flashcardRepository.findByTopic(topic);
                 topic.setFlashcards(flashcards);
             }
-            subject.setTopics(topics); 
+            subject.setTopics(topics);
         }
         return subjects;
     }
+    
 
     public Optional<Subject> getSubjectById(String id) {
         logger.info("Fetching subject by ID: " + id);
@@ -84,6 +111,34 @@ public class SubjectService {
 
         return subject;
     }
+
+    public Subject toggleFavorite(String subjectId) {
+        // Retrieve the subject by ID
+        Optional<Subject> optionalSubject = subjectRepository.findById(subjectId);
+        if (optionalSubject.isPresent()) {
+            Subject subject = optionalSubject.get();
+            
+            // Toggle the isFavorite property
+            subject.setFavorite(!subject.isFavorite());
+            
+            // Save the updated subject back to the repository
+            return subjectRepository.save(subject);
+        } else {
+            throw new IllegalArgumentException("Subject not found with id: " + subjectId);
+        }
+    }
+
+    public Optional<Subject> getSubjectByName(String subjectName) {
+        logger.info("Fetching subject by name: " + subjectName);
+        Optional<Subject> subject = subjectRepository.findBySubjectNameIgnoreCase(subjectName);
+    
+        if (!subject.isPresent()) {
+            logger.warn("Subject with name " + subjectName + " not found.");
+        }
+    
+        return subject;
+    }
+    
 
     public Subject saveSubject(Subject subject) {
         logger.info("Saving subject: " + subject.getSubjectName());

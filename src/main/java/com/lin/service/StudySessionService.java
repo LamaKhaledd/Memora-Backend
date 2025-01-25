@@ -5,7 +5,6 @@ import com.lin.entity.StudySession;
 import com.lin.repository.StudySessionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,7 +15,7 @@ public class StudySessionService {
     private StudySessionRepository studySessionRepository;
 
     public StudySession createStudySession(String subjectId, String topicName, String topicId,
-            List<Flashcard> easyQuestions,
+            int i, int j, int k, String total, int l, int m, int n, List<Flashcard> easyQuestions,
             List<Flashcard> mediumQuestions, List<Flashcard> hardQuestions) {
 
         StudySession studySession = new StudySession();
@@ -26,16 +25,15 @@ public class StudySessionService {
         studySession.setEasyQuestions(easyQuestions);
         studySession.setMediumQuestions(mediumQuestions);
         studySession.setHardQuestions(hardQuestions);
-
-        studySession.setCorrectAnswerCount(0);
-        studySession.setIncorrectAnswerCount(0);
+        studySession.setCorrectAnswerCount(i);
+        studySession.setIncorrectAnswerCount(j);
         studySession.setTotalQuestions(easyQuestions.size() + mediumQuestions.size() + hardQuestions.size());
 
         studySession.setEasyQuestionCount(easyQuestions.size());
         studySession.setMediumQuestionCount(mediumQuestions.size());
         studySession.setHardQuestionCount(hardQuestions.size());
 
-        studySession.setTotalTimeSpent("00:00");
+        studySession.setTotalTimeSpent(total);
 
         studySession.setCreatedAt(LocalDateTime.now());
 

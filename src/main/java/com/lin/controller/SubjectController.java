@@ -21,10 +21,18 @@ public class SubjectController {
     }
 
 
-    @GetMapping("/user/{userId}")
-    public List<Subject> getSubjectsByUserId(@PathVariable String userId) {
-        return subjectService.getSubjectsWithTopicsAndFlashcardsByUserId(userId);
+    @GetMapping("/search")
+    public ResponseEntity<Subject> getSubjectByName(@RequestParam String name) {
+        Optional<Subject> subject = subjectService.getSubjectByName(name);
+        if (subject.isPresent()) {
+            return ResponseEntity.ok(subject.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
+
+
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Subject> getSubjectById(@PathVariable String id) { // Change to String
@@ -35,6 +43,26 @@ public class SubjectController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+
+
+    @GetMapping("/user/{userId}")
+    public List<Subject> getSubjectsByUserId(@PathVariable String userId) {
+        System.out.println(userId);
+        return subjectService.getSubjectsByUserId(userId);
+    }
+
+
+    @PostMapping("/{id}/toggle-favorite")
+    public ResponseEntity<Subject> toggleFavorite(@PathVariable String id) {
+        try {
+            // Call the service to toggle the favorite status
+            Subject updatedSubject = subjectService.toggleFavorite(id);
+            return ResponseEntity.ok(updatedSubject);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
 
     @PostMapping
     public ResponseEntity<Subject> saveSubject(@RequestBody Subject subject) {

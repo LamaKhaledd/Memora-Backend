@@ -18,11 +18,11 @@ public class TopicController {
     
 
     @PostMapping
-    public ResponseEntity<Topic> createTopic(@RequestBody TopicRequest topicRequest) {
+    public ResponseEntity<Topic> createTopic(@RequestParam String subjectId, @RequestParam String topicName) {
         System.out.println("Received TopicRequest:");
-        System.out.println("Subject ID: " + topicRequest.getSubjectId());
-        System.out.println("Topic Name: " + topicRequest.getTopicName());
-        Topic createdTopic = topicService.createTopic(topicRequest.getSubjectId(), topicRequest.getTopicName());
+        System.out.println("Subject ID: " + subjectId);
+        System.out.println("Topic Name: " + topicName);
+        Topic createdTopic = topicService.createTopic(subjectId, topicName);
         return ResponseEntity.status(201).body(createdTopic);
     }
 
@@ -44,6 +44,16 @@ public class TopicController {
         Topic updatedTopic = topicService.updateTopic(topicRequest.getId(), topicRequest.getSubjectId(), topicRequest.getTopicName());
         return ResponseEntity.ok(updatedTopic);
     }
+
+
+    @PostMapping("/create-with-default-user")
+    public ResponseEntity<Topic> createTopicWithDefaultUser(
+            @RequestParam String topicName,
+            @RequestParam String subjectId) {
+        Topic createdTopic = topicService.createTopicWithDefaultUser(topicName, subjectId);
+        return ResponseEntity.status(201).body(createdTopic);
+    }
+
 
     // Delete a topic
     @DeleteMapping("/{id}")

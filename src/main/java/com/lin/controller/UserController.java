@@ -5,11 +5,11 @@ import com.lin.repository.UserRepository;
 import com.lin.service.LoginService;
 import com.lin.service.RegisterService;
 import com.lin.service.UserService;
-
+import com.lin.DTO.RoleRequest;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -56,6 +56,47 @@ public class UserController {
 
     /////////// auth
 
+    @Autowired
+    RegisterService roleService;
+
+
+    @Autowired
+    RegisterService adminRequestService;
+    @PostMapping("/admin/request")
+    public ResponseEntity<String> submitAdminRequest(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String username = request.get("username");
+
+        if (email == null || username == null) {
+            return ResponseEntity.badRequest().body("Email and username are required.");
+        }
+
+        String response = adminRequestService.submitAdminRequest(email, username);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/roleSelect")
+    public ResponseEntity<String> assignRole(
+            @RequestParam String token,
+            @RequestBody RoleRequest roleRequest) {
+
+        String response = roleService.assignRole(
+                roleRequest.getEmail(),
+                roleRequest.getUsername(),
+                roleRequest.getPassword(),
+                roleRequest.getRole(),
+                token
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+
+    @GetMapping(value = "/all")
+    public List<User> getAllUsers() {
+        return userService.getAllUsers();
+    }
+    
     @PostMapping(value = "/send")
     public String send(@RequestBody User user) {
         return registerService.send(user);
@@ -67,7 +108,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/login")
-    public String loginUser(@RequestBody User user) {
+    public Map<String, Object> loginUser(@RequestBody User user) {
         return loginService.loginUser(user);
     }
 

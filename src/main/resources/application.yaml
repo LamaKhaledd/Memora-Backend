@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8082
 
 spring:
   data:
@@ -11,8 +11,10 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+      enabled: true
+      location: C:\Users\hp\Desktop\test
+      
 
-  
   mail:
     host: smtp.gmail.com
     port: 465
@@ -22,7 +24,7 @@ spring:
       mail.smtp.auth: true
       mail.smtp.ssl.enable: true
       mail.smtp.timeout: 2500
-# 日志信息
+
 logging:
   level:
     com:
@@ -32,10 +34,18 @@ logging:
       hibernate: WARN
       springframework: WARN
 
-# 上传路径
 upload:
   dir : /home/qdl/Desktop/gallery/
 
-# 图片网络访问路径
 img:
   imgURL: http://xxx:8080/images/
+
+openai:
+  key: ca003be43a99c8eeff8867937b9e227d
+
+
+Chatbot:
+  api:
+    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent
+    key: AIzaSyAM1KzNd_sph56IhhNalHPQgeVC6JqU_5s
+

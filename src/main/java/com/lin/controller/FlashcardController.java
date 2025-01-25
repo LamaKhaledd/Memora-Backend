@@ -6,9 +6,14 @@ import com.lin.entity.Topic;
 import com.lin.repository.SubjectRepository;
 import com.lin.repository.TopicRepository;
 import com.lin.service.FlashcardService;
+import com.lin.service.TranslationService;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -18,6 +23,9 @@ public class FlashcardController {
 
     @Autowired
     private FlashcardService flashcardService;
+
+    @Autowired
+    private TranslationService translationService;
 
     @Autowired
     private SubjectRepository subjectRepository;
@@ -34,6 +42,22 @@ public class FlashcardController {
 
 
 
+    @PostMapping("/translate")
+    public ResponseEntity<String> translateFlashcardContent(
+            @RequestParam String text,
+            @RequestParam String sourceLang,
+            @RequestParam String targetLang) {
+
+        try {
+            System.out.println("Received text: " + text);
+            String translatedText = translationService.translateText(text, sourceLang, targetLang);
+            return ResponseEntity.ok(translatedText);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Translation failed: " + e.getMessage());
+        }
+    }
     // Update flashcard after review
     @PostMapping("/review/{id}")
     public ResponseEntity<Flashcard> reviewFlashcard(@PathVariable String id, @RequestParam int responseQuality) {
@@ -52,9 +76,16 @@ public class FlashcardController {
         }
     }
 
+
+    @GetMapping("/flag/{flag}")
+    public ResponseEntity<List<Flashcard>> getFlashcardsByFlag(@PathVariable String flag) {
+        List<Flashcard> flashcards = flashcardService.getFlashcardsByFlag(flag);
+        return ResponseEntity.ok(flashcards);
+    }
+
     // Create a new flashcard
     
-        @PostMapping
+    @PostMapping
     public ResponseEntity<Flashcard> createFlashcard(@RequestBody FlashcardRequest flashcardRequest) {
         // Create the Flashcard object from FlashcardRequest
         Flashcard flashcard = new Flashcard();
@@ -78,6 +109,42 @@ public class FlashcardController {
         return ResponseEntity.status(201).body(savedFlashcard);
     }
     
+
+    @PostMapping("/{id}/{flag}")
+    public ResponseEntity<Flashcard> updateFlashcardFlag(@PathVariable String id, @PathVariable String flag) {
+        Flashcard updatedFlashcard = flashcardService.updateFlashcardFlag(id, flag);
+        return ResponseEntity.ok(updatedFlashcard);
+    }
+
+
+    @PostMapping("/generate")
+public ResponseEntity<List<Flashcard>> generateFlashcardsFromPdf(
+        @RequestParam("file") MultipartFile file,
+        @RequestParam int quantity,
+        @RequestParam int difficulty,
+        @RequestParam String subjectId,
+        @RequestParam String topicId) {
+
+    try {
+        // Validate subject and topic IDs
+        Subject subject = subjectRepository.findById(subjectId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid subjectId: " + subjectId));
+        Topic topic = topicRepository.findById(topicId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid topicId: " + topicId));
+
+        // Extract content from the uploaded file
+        String content = flashcardService.extractPdfContent(file);
+
+        // Generate flashcards
+        return ResponseEntity.ok(flashcardService.generateFlashcards(content, quantity, difficulty, subject, topic));
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(null);
+    }
+}
+
 
     @PutMapping("/{id}")
     public ResponseEntity<Flashcard> updateFlashcard(@PathVariable String id, @RequestBody Flashcard updatedFlashcard) {
@@ -108,6 +175,8 @@ public class FlashcardController {
         }
     }
 
+
+    // Generate flashcards from PDF
     // Get flashcards by topic ID
     @GetMapping("/topic/{topicId}")
     public ResponseEntity<List<Flashcard>> getFlashcardsByTopicId(@PathVariable String topicId) {

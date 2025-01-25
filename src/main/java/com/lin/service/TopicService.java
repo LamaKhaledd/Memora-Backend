@@ -41,10 +41,34 @@ public class TopicService {
         Topic newTopic = new Topic();
         newTopic.setSubject(subject);
         newTopic.setTopicName(topicName);
+        newTopic.setId(subjectId + "_" + topicName);
 
         return topicRepository.save(newTopic);
     }
 
+
+    public Topic createTopicWithDefaultUser(String topicName, String subjectId) {
+        logger.info("Creating topic with name '{}' for subject ID '{}' and default user ID 'user1'", topicName, subjectId);
+    
+        // Fetch the subject to associate with the topic
+        Subject subject = subjectRepository.findById(subjectId)
+                .orElseThrow(() -> new IllegalArgumentException("Subject not found with ID: " + subjectId));
+    
+        // Build the new Topic
+        Topic newTopic = Topic.builder()
+                .id(subjectId + "_" + topicName)
+                .userId("user1") // Default user ID
+                .topicName(topicName)
+                .imageUrl("") // Default or placeholder image URL
+                .subject(subject)
+                .flashcards(List.of()) // Empty flashcard list
+                .build();
+    
+        // Save the topic to the database
+        return topicRepository.save(newTopic);
+    }
+
+    
     public Topic updateTopic(String topicId, String subjectId, String topicName) {
         logger.info("Updating topic with ID: {} for subject ID: {}", topicId, subjectId);
 
