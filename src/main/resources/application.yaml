@@ -4,8 +4,8 @@ server:
 spring:
   data:
     mongodb:
-      uri: mongodb://localhost:27017/MemoraDB
-      database: MemoraDB
+      uri: mongodb://localhost:27017/Memora  
+      database: Memora 
       
   servlet:
     multipart:
@@ -38,7 +38,11 @@ upload:
   dir : /home/qdl/Desktop/gallery/
 
 img:
-  imgURL: http://xxx:8080/images/
+  imgURL: http://xxx:8081/images/
+
+
+openai:
+  key: ca003be43a99c8eeff8867937b9e227d
 
 
 Chatbot:
@@ -46,3 +50,11 @@ Chatbot:
     url: https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent
     key: AIzaSyAM1KzNd_sph56IhhNalHPQgeVC6JqU_5s
 
+
+python:
+  api:
+    url: http://localhost:5000/predict
+
+flask:
+  server:
+    url: http://localhost:5000/predictDigit
