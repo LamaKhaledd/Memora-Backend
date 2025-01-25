@@ -4,5 +4,5 @@ public enum UserRole {
     PARENT,
     USER,
     ADMIN,
-    GUEST
+    INSTRUCTOR
 }

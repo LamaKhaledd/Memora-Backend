@@ -3,17 +3,26 @@ package com.lin.entity;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DBRef;
-
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.util.List;
 
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Document(collection = "subjects")
 public class Subject {
 
     @Id
-    private String id; 
+    private String id="nmnm" ;
     private String userId;
     private String subjectName;
     private String imageUrl;
+    private boolean isFavorite=false;
+    private String privacy="public";
+    private boolean editable=true;
 
     @DBRef
     private List<Topic> topics; 

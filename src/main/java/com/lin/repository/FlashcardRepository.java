@@ -19,4 +19,6 @@ public interface FlashcardRepository extends MongoRepository<Flashcard, String> 
     List<Flashcard> findByTopic(Topic topic);
 
     List<Flashcard> findByTopic(Optional<Topic> topic);
+    List<Flashcard> findByFlag(String flag);
+
 }

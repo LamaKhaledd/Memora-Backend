@@ -4,8 +4,17 @@ import java.util.List;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Document(collection = "quizzes")
 public class Quiz {
 
@@ -18,6 +27,7 @@ public class Quiz {
     private List<String> option2Controller;
     private List<String> option3Controller;
     private List<String> option4Controller;
+    private String quizName;
 
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt = LocalDateTime.now();

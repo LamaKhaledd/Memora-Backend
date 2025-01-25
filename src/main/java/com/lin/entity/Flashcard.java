@@ -1,6 +1,7 @@
 package com.lin.entity;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -17,19 +18,21 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Document(collection = "flashcards")
-@JsonPropertyOrder({"id", "subjectId", "topicId", "question", "answer", "difficulty", "lastResponse", "imageUrl", "visibility", "nextReviewDate", "interval", "easinessFactor"})
+@JsonPropertyOrder({"id", "flag", "subjectId", "topicId", "userId","question", "answer", "difficulty", "lastResponse", "imageUrl", "visibility", "nextReviewDate", "interval", "easinessFactor"})
 public class Flashcard {
 
     @Id
     private String id; 
+    private String flag;
     private String question;
     private String answer;
     private Integer difficulty; 
     private Boolean lastResponse;
     private String imageUrl;
     private FlashcardVisibility visibility; 
+    
 
-    private LocalDateTime nextReviewDate = LocalDateTime.now(); // Default to current time
+    private LocalDateTime nextReviewDate = LocalDateTime.now(); 
     private Integer interval = 1; // Default to 1 day
     private Double easinessFactor = 2.5;
 
@@ -41,6 +44,10 @@ public class Flashcard {
     @DBRef
     @JsonIgnore
     private Topic topic;
+
+    @DBRef
+    @JsonIgnore
+    private User user;
 
     // Getters and Setters
     public String getId() {
@@ -96,8 +103,8 @@ public class Flashcard {
         return subject;
     }
 
-    public void setSubject(Subject subject) {
-        this.subject = subject;
+    public void setSubject(Subject subject2) {
+        this.subject = subject2;
     }
 
     public Topic getTopic() {

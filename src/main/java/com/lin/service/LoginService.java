@@ -1,6 +1,10 @@
 package com.lin.service;
 import com.lin.entity.User;
 import com.lin.repository.UserRepository;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -10,20 +14,27 @@ public class LoginService {
     @Autowired
     private UserRepository userRepository;
     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
-    public String loginUser(User user) {
+    public Map<String, Object> loginUser(User user) {
+        Map<String, Object> response = new HashMap<>();
+        
         User existingUser = userRepository.findByEmail(user.getEmail());
         if (existingUser != null) {
-            if (!existingUser.isEnabled()) {
-                return "The email is not verified.";
-            }
             if (encoder.matches(user.getPassword(), existingUser.getPassword())) {
-                return String.format("Login successful. User role: %s", existingUser.getRole());
+                response.put("role", existingUser.getRole().toString());
+                response.put("userId", existingUser.getUserId());
+                response.put("message", "Login successful.");
+                System.out.println(response);
             } else {
-                return "Incorrect password. Try again.";
+                response.put("message", "Incorrect password. Try again.");
+                System.out.println(response);
             }
         } else {
-            return "Your account does not exist. Please register!";
+            response.put("message", "Your account does not exist. Please register!");
+            System.out.println(response);
         }
+
+        return response;
     }
+    
     
 }
