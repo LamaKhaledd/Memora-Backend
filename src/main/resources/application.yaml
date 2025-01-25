@@ -40,9 +40,6 @@ upload:
 img:
   imgURL: http://xxx:8080/images/
 
-openai:
-  key: ca003be43a99c8eeff8867937b9e227d
-
 
 Chatbot:
   api:

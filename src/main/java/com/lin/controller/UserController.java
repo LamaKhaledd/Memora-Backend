@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,11 +36,6 @@ public class UserController {
     @GetMapping("/{userId}")
     public User getUserById(@PathVariable String userId) {
         return userService.getUserById(userId);
-    }
-
-    @GetMapping(value = "/all")
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
     }
 
     // Update user details
