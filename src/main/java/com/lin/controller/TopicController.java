@@ -1,4 +1,5 @@
 package com.lin.controller;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,18 @@ public class TopicController {
     }
 
 
+    // Search for a topic by its ID
+@GetMapping("/{id}")
+public ResponseEntity<Topic> getTopicById(@PathVariable String id) {
+    Topic topic = topicService.getTopicById(id); // Call service method to find the topic by ID
+    if (topic != null) {
+        return ResponseEntity.ok(topic); // Return the topic if found
+    } else {
+        return ResponseEntity.notFound().build(); // Return 404 if the topic is not found
+    }
+}
+
+
     
     @GetMapping("/{id}/flashcard-counts")
     public ResponseEntity<Map<String, Integer>> getFlashcardCountsByDifficulty(@PathVariable String id) {
@@ -46,6 +59,27 @@ public class TopicController {
     }
 
 
+
+    @PostMapping("/{topicId}/view")
+    public ResponseEntity<Void> recordTopicView(
+            @RequestParam String userId, // User ID who viewed the topic
+            @PathVariable String topicId) { // Topic ID that was viewed
+
+        // Call the service method to record the topic view
+        topicService.recordTopicView(userId, topicId);
+
+        // Return a response indicating success
+        return ResponseEntity.status(201).build(); // HTTP 201 Created
+    }
+
+    
+    @GetMapping("/{userId}/recent-views")
+    public ResponseEntity<List<Topic>> getRecentTopicsViewedByUser(@PathVariable String userId) {
+        List<Topic> recentTopics = topicService.getRecentTopicsViewedByUser(userId);
+        return ResponseEntity.ok(recentTopics);
+    
+    
+    }
     @PostMapping("/create-with-default-user")
     public ResponseEntity<Topic> createTopicWithDefaultUser(
             @RequestParam String topicName,

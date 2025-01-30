@@ -23,6 +23,9 @@ public class Subject {
     private boolean isFavorite=false;
     private String privacy="public";
     private boolean editable=true;
+    private List<String> sharedUsers;  
+
+
 
     @DBRef
     private List<Topic> topics; 

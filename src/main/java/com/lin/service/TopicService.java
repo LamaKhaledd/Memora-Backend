@@ -3,10 +3,12 @@ package com.lin.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,9 +16,11 @@ import org.slf4j.LoggerFactory;
 import com.lin.entity.Flashcard;
 import com.lin.entity.Subject;
 import com.lin.entity.Topic;
+import com.lin.entity.TopicView;
 import com.lin.repository.FlashcardRepository;
 import com.lin.repository.SubjectRepository;
 import com.lin.repository.TopicRepository;
+import com.lin.repository.TopicViewRepository;
 
 @Service
 public class TopicService {
@@ -31,6 +35,9 @@ public class TopicService {
 
     @Autowired
     private FlashcardRepository flashcardRepository;
+
+    @Autowired
+    private TopicViewRepository topicViewRepository;
 
     public Topic createTopic(String subjectId, String topicName) {
         logger.info("Creating topic with name '{}' for subject ID: {}", topicName, subjectId);
@@ -47,6 +54,11 @@ public class TopicService {
     }
 
 
+    public Topic getTopicById(String id) {
+        return topicRepository.findById(id).orElse(null); // Using MongoDB's findById method
+    }
+
+    
     public Topic createTopicWithDefaultUser(String topicName, String subjectId) {
         logger.info("Creating topic with name '{}' for subject ID '{}' and default user ID 'user1'", topicName, subjectId);
     
@@ -139,4 +151,34 @@ public class TopicService {
 
         topicRepository.deleteById(topicId);
     }
-}
+
+
+
+
+
+
+
+
+
+    public void recordTopicView(String userId, String topicId) {
+        TopicView topicView = new TopicView(userId, topicId, LocalDateTime.now());
+        topicViewRepository.save(topicView);
+    }
+    public List<Topic> getRecentTopicsViewedByUser(String userId) {
+        List<TopicView> topicViews = topicViewRepository.findTop4ByUserIdOrderByViewedAtDesc(userId);
+    
+        // Explicitly cast the return type of the lambda to Topic
+        return topicViews.stream()
+                .map((TopicView topicView) -> topicRepository.findById(topicView.getTopicId()).orElse(null)) // Explicitly typing the lambda
+                .filter(topic -> topic != null) // Filter out null topics
+                .peek(topic -> {
+                    // Print the number of flashcards for each topic
+                    int flashcardCount = topic.getFlashcards() != null ? topic.getFlashcards().size() : 0;
+                    System.out.println("Topic: " + topic.getTopicName() + " has " + flashcardCount + " flashcards.");
+                })
+                .collect(Collectors.toList()); // Collect into a list of Topics
+    }
+}    
+
+
+

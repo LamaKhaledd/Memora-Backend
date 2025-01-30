@@ -35,12 +35,46 @@ public class SubjectController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<Subject> getSubjectById(@PathVariable String id) { // Change to String
-        Optional<Subject> subject = subjectService.getSubjectById(id); // Update method signature to accept String
+    public ResponseEntity<Subject> getSubjectById(@PathVariable String id) { 
+        Optional<Subject> subject = subjectService.getSubjectById(id); 
         if (subject.isPresent()) {
             return ResponseEntity.ok(subject.get());
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+
+    // Toggle privacy of the subject
+    @PostMapping("/{id}/toggle-privacy")
+    public ResponseEntity<Subject> togglePrivacy(@PathVariable String id, @RequestParam String privacy) {
+        try {
+            Subject updatedSubject = subjectService.togglePrivacy(id, privacy);
+            return ResponseEntity.ok(updatedSubject);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
+    // Add user to protected subject
+    @PostMapping("/{id}/add-user")
+    public ResponseEntity<Subject> addUserToProtectedSubject(@PathVariable String id, @RequestParam String userId) {
+        try {
+            Subject updatedSubject = subjectService.addUserToProtectedSubject(id, userId);
+            return ResponseEntity.ok(updatedSubject);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
+
+    // Remove user from protected subject
+    @PostMapping("/{id}/remove-user")
+    public ResponseEntity<Subject> removeUserFromProtectedSubject(@PathVariable String id, @RequestParam String userId) {
+        try {
+            Subject updatedSubject = subjectService.removeUserFromProtectedSubject(id, userId);
+            return ResponseEntity.ok(updatedSubject);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
 
@@ -55,7 +89,6 @@ public class SubjectController {
     @PostMapping("/{id}/toggle-favorite")
     public ResponseEntity<Subject> toggleFavorite(@PathVariable String id) {
         try {
-            // Call the service to toggle the favorite status
             Subject updatedSubject = subjectService.toggleFavorite(id);
             return ResponseEntity.ok(updatedSubject);
         } catch (IllegalArgumentException e) {
@@ -70,8 +103,8 @@ public class SubjectController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSubject(@PathVariable String id) { // Change to String
-        subjectService.deleteSubject(id); // Update method signature to accept String
+    public ResponseEntity<Void> deleteSubject(@PathVariable String id) { 
+        subjectService.deleteSubject(id); 
         return ResponseEntity.noContent().build();
     }
 
