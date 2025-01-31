@@ -53,12 +53,77 @@ public class SubjectService {
                 List<Flashcard> flashcards = flashcardRepository.findByTopic(topic);
                 topic.setFlashcards(flashcards);
             }
-            subject.setTopics(topics); // Set filtered topics to the subject
+            subject.setTopics(topics); 
         }
 
         return subjects;
     }
 
+
+
+
+    public Subject togglePrivacy(String subjectId, String privacy) {
+        Optional<Subject> optionalSubject = subjectRepository.findById(subjectId);
+        if (optionalSubject.isPresent()) {
+            Subject subject = optionalSubject.get();
+
+            // Update privacy based on the input
+            subject.setPrivacy(privacy);
+            
+            // If the privacy is set to protected, ensure sharedUsers list is initialized
+            if ("protected".equalsIgnoreCase(privacy) && subject.getSharedUsers() == null) {
+                subject.setSharedUsers(new ArrayList<>());
+            }
+
+            return subjectRepository.save(subject);
+        } else {
+            throw new IllegalArgumentException("Subject not found with id: " + subjectId);
+        }
+    }
+
+    public Subject addUserToProtectedSubject(String subjectId, String userId) {
+        Optional<Subject> optionalSubject = subjectRepository.findById(subjectId);
+        if (optionalSubject.isPresent()) {
+            Subject subject = optionalSubject.get();
+
+            if ("protected".equalsIgnoreCase(subject.getPrivacy())) {
+                List<String> sharedUsers = subject.getSharedUsers();
+                if (!sharedUsers.contains(userId)) {
+                    sharedUsers.add(userId);
+                    subject.setSharedUsers(sharedUsers);
+                    return subjectRepository.save(subject);
+                } else {
+                    throw new IllegalArgumentException("User already has access to this subject.");
+                }
+            } else {
+                throw new IllegalArgumentException("Subject is not protected.");
+            }
+        } else {
+            throw new IllegalArgumentException("Subject not found with id: " + subjectId);
+        }
+    }
+
+    public Subject removeUserFromProtectedSubject(String subjectId, String userId) {
+        Optional<Subject> optionalSubject = subjectRepository.findById(subjectId);
+        if (optionalSubject.isPresent()) {
+            Subject subject = optionalSubject.get();
+
+            if ("protected".equalsIgnoreCase(subject.getPrivacy())) {
+                List<String> sharedUsers = subject.getSharedUsers();
+                if (sharedUsers.contains(userId)) {
+                    sharedUsers.remove(userId);
+                    subject.setSharedUsers(sharedUsers);
+                    return subjectRepository.save(subject);
+                } else {
+                    throw new IllegalArgumentException("User does not have access to this subject.");
+                }
+            } else {
+                throw new IllegalArgumentException("Subject is not protected.");
+            }
+        } else {
+            throw new IllegalArgumentException("Subject not found with id: " + subjectId);
+        }
+    }
     
 
     public List<Subject> getSubjectsByUserId(String userId) {
@@ -82,7 +147,6 @@ public class SubjectService {
         List<Subject> subjects = subjectRepository.findAll();
         logger.info("Fetched all subjects: " + subjects.size() + " subjects found.");
     
-        // Filter subjects to include only those with public privacy
         subjects = subjects.stream()
                 .filter(subject -> "public".equalsIgnoreCase(subject.getPrivacy()))
                 .toList();
